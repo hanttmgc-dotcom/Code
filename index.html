@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Bao Quay Số & Dashboard Thời Tiết</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">🎮 Bao Quay Số & 🌤️ Thời Tiết</div>
+            <ul class="nav-menu">
+                <li><a href="#" onclick="showPage('home')" class="nav-link active">Trang Chủ</a></li>
+                <li><a href="#" onclick="showPage('prizewheel')" class="nav-link">🎡 Vòng Quay May Mắn</a></li>
+                <li><a href="#" onclick="showPage('weather')" class="nav-link">🌤️ Dashboard Thời Tiết</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Home Page -->
+    <div id="home" class="page active">
+        <div class="home-container">
+            <h1>Chào Mừng! 👋</h1>
+            <p>Khám phá hai ứng dụng tuyệt vời:</p>
+            
+            <div class="home-grid">
+                <div class="home-card" onclick="showPage('prizewheel')">
+                    <div class="card-icon">🎡</div>
+                    <h2>Vòng Quay May Mắn</h2>
+                    <p>Quay vòng để nhận phần thưởng:</p>
+                    <ul>
+                        <li>Coupon 900K</li>
+                        <li>Coupon 50K</li>
+                        <li>Coupon 200K</li>
+                        <li>Miễn phí 100%</li>
+                    </ul>
+                    <button class="btn-home">Chơi Ngay →</button>
+                </div>
+
+                <div class="home-card" onclick="showPage('weather')">
+                    <div class="card-icon">🌤️</div>
+                    <h2>Dashboard Thời Tiết</h2>
+                    <p>Xem thời tiết thời gian thực:</p>
+                    <ul>
+                        <li>Nhiệt độ hiện tại</li>
+                        <li>Độ ẩm & Gió</li>
+                        <li>Dự báo 24 giờ</li>
+                        <li>Chi tiết chi tiết</li>
+                    </ul>
+                    <button class="btn-home">Xem Ngay →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prize Wheel Page -->
+    <div id="prizewheel" class="page">
+        <div class="prize-wheel-container">
+            <h1>🎡 Vòng Quay May Mắn</h1>
+            
+            <div class="wheel-wrapper">
+                <div class="pointer"></div>
+                <canvas id="wheelCanvas" width="400" height="400"></canvas>
+            </div>
+
+            <button id="spinBtn" class="btn-spin" onclick="spinWheel()">🎯 QUAY NGAY</button>
+
+            <div id="prizeDisplay" class="prize-display hidden">
+                <h2>🎉 Chúc Mừng!</h2>
+                <div id="prizeName" class="prize-name"></div>
+                <div id="prizeValue" class="prize-value"></div>
+                <button onclick="resetWheel()" class="btn-reset">Quay Lại</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weather Dashboard Page -->
+    <div id="weather" class="page">
+        <div class="weather-container">
+            <h1>🌤️ Dashboard Thời Tiết</h1>
+            
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="cityInput" 
+                    placeholder="Nhập tên thành phố (vd: Hanoi, Tokyo, Paris)..." 
+                    onkeypress="handleCitySearch(event)"
+                >
+                <button onclick="searchCity()" class="btn-search">🔍 Tìm</button>
+            </div>
+
+            <div id="weatherLoading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>Đang tải dữ liệu...</p>
+            </div>
+
+            <div id="weatherError" class="error-message hidden"></div>
+
+            <div id="weatherContent" class="weather-content hidden">
+                <div class="current-weather">
+                    <div class="city-info">
+                        <h2 id="cityName"></h2>
+                        <p id="weatherDate"></p>
+                    </div>
+                    <div class="temp-section">
+                        <div class="weather-icon" id="weatherIcon">☀️</div>
+                        <div class="temp-info">
+                            <div class="current-temp" id="currentTemp">--°C</div>
+                            <div class="weather-desc" id="weatherDesc">--</div>
+                            <div class="feels-like" id="feelsLike">Cảm giác như: --°C</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="weather-details-grid">
+                    <div class="detail-card">
+                        <div class="detail-icon">💧</div>
+                        <div class="detail-label">Độ Ẩm</div>
+                        <div class="detail-value" id="humidity">--%</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-icon">💨</div>
+                        <div class="detail-label">Gió</div>
+                        <div class="detail-value" id="windSpeed">-- m/s</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-icon">🔽</div>
+                        <div class="detail-label">Áp Suất</div>
+                        <div class="detail-value" id="pressure">-- hPa</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-icon">👁️</div>
+                        <div class="detail-label">Tầm Nhìn</div>
+                        <div class="detail-value" id="visibility">-- km</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-icon">☁️</div>
+                        <div class="detail-label">Mây</div>
+                        <div class="detail-value" id="cloudiness">--%</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-icon">🌧️</div>
+                        <div class="detail-label">Mưa (1h)</div>
+                        <div class="detail-value" id="rainVolume">-- mm</div>
+                    </div>
+                </div>
+
+                <div class="sun-times">
+                    <div class="sun-time">
+                        <span class="sun-icon">🌅</span>
+                        <span class="sun-label">Mặt Trời Mọc:</span>
+                        <span class="sun-value" id="sunrise">--:--</span>
+                    </div>
+                    <div class="sun-time">
+                        <span class="sun-icon">🌇</span>
+                        <span class="sun-label">Mặt Trời Lặn:</span>
+                        <span class="sun-value" id="sunset">--:--</span>
+                    </div>
+                </div>
+
+                <div class="forecast-section">
+                    <h3>📊 Dự Báo 24 Giờ</h3>
+                    <div class="forecast-scroll" id="forecastScroll"></div>
+                </div>
+            </div>
+
+            <div id="weatherDefault" class="weather-default">
+                <p>👆 Nhập tên thành phố để xem thời tiết</p>
+                <button onclick="loadDefaultCity()" class="btn-default">Hoặc Xem Hanoi (Mặc định)</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>© 2026 Bao Quay Số & Weather Dashboard | Made with ❤️ by hanttmgc-dotcom</p>
+        <p>Weather Data: <a href="https://openweathermap.org/" target="_blank">OpenWeatherMap API</a></p>
+    </footer>
+
+    <script src="wheel.js"></script>
+    <script src="weather.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
